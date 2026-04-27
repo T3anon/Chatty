@@ -13,7 +13,7 @@ export async function findTeacherMatches(userId: string, targetLanguage: string)
 
   if (!student || !student.fluentLanguages) return [];
 
-  const studentFluentLangs = student.fluentLanguages.split(",").map(s => s.trim());
+  const studentFluentLangs = student.fluentLanguages.split(",").map((s: string) => s.trim());
 
   // Find users who are fluent in targetLanguage AND fluent in AT LEAST ONE of student's fluent languages
   const potentialTeachers = await prisma.user.findMany({
@@ -27,7 +27,7 @@ export async function findTeacherMatches(userId: string, targetLanguage: string)
 
   return potentialTeachers.filter(teacher => {
     if (!teacher.fluentLanguages) return false;
-    const teacherFluentLangs = teacher.fluentLanguages.split(",").map(s => s.trim());
+    const teacherFluentLangs = teacher.fluentLanguages.split(",").map((s: string) => s.trim());
     
     // Check if teacher is fluent in the target language
     const teachesTarget = teacherFluentLangs.includes(targetLanguage);
@@ -52,8 +52,8 @@ export async function findPeerMatches(userId: string) {
 
   if (!user) return [];
 
-  const userFluent = (user.fluentLanguages || "").split(",").map(s => s.trim()).filter(Boolean);
-  const userLearning = (user.learningLanguages || "").split(",").map(s => s.trim()).filter(Boolean);
+  const userFluent = (user.fluentLanguages || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+  const userLearning = (user.learningLanguages || "").split(",").map((s: string) => s.trim()).filter(Boolean);
   const userAll = [...userFluent, ...userLearning];
 
   const allOtherUsers = await prisma.user.findMany({
@@ -61,8 +61,8 @@ export async function findPeerMatches(userId: string) {
   });
 
   return allOtherUsers.filter(other => {
-    const otherFluent = (other.fluentLanguages || "").split(",").map(s => s.trim()).filter(Boolean);
-    const otherLearning = (other.learningLanguages || "").split(",").map(s => s.trim()).filter(Boolean);
+    const otherFluent = (other.fluentLanguages || "").split(",").map((s: string) => s.trim()).filter(Boolean);
+    const otherLearning = (other.learningLanguages || "").split(",").map((s: string) => s.trim()).filter(Boolean);
     const otherAll = [...otherFluent, ...otherLearning];
 
     // 1. Minimum 1 fluent language in common
