@@ -33,7 +33,7 @@ export async function findTeacherMatches(userId: string, targetLanguage: string)
     const teachesTarget = teacherFluentLangs.includes(targetLanguage);
     
     // Check if teacher is fluent in at least one of student's fluent languages
-    const speaksStudentLang = studentFluentLangs.some(lang => teacherFluentLangs.includes(lang));
+    const speaksStudentLang = studentFluentLangs.some((lang: string) => teacherFluentLangs.includes(lang));
     
     return teachesTarget && speaksStudentLang;
   });
@@ -60,17 +60,17 @@ export async function findPeerMatches(userId: string) {
     where: { id: { not: userId } },
   });
 
-  return allOtherUsers.filter(other => {
+  return allOtherUsers.filter((other: any) => {
     const otherFluent = (other.fluentLanguages || "").split(",").map((s: string) => s.trim()).filter(Boolean);
     const otherLearning = (other.learningLanguages || "").split(",").map((s: string) => s.trim()).filter(Boolean);
     const otherAll = [...otherFluent, ...otherLearning];
 
     // 1. Minimum 1 fluent language in common
-    const commonFluent = userFluent.filter(lang => otherFluent.includes(lang));
+    const commonFluent = userFluent.filter((lang: string) => otherFluent.includes(lang));
     if (commonFluent.length < 1) return false;
 
     // 2. Minimum 2 languages in common (fluent or learning)
-    const commonAll = userAll.filter(lang => otherAll.includes(lang));
+    const commonAll = userAll.filter((lang: string) => otherAll.includes(lang));
     if (commonAll.length < 2) return false;
 
     return true;
