@@ -25,7 +25,7 @@ export async function findTeacherMatches(userId: string, targetLanguage: string)
     },
   });
 
-  return potentialTeachers.filter(teacher => {
+  return potentialTeachers.filter((teacher: any) => {
     if (!teacher.fluentLanguages) return false;
     const teacherFluentLangs = teacher.fluentLanguages.split(",").map((s: string) => s.trim());
     
