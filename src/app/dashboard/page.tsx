@@ -7,9 +7,6 @@ import { useRouter } from "next/navigation";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [isQueued, setIsQueued] = useState(false);
-  const [queueStatus, setQueueStatus] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -19,31 +16,48 @@ export default function Dashboard() {
     }
   }, [status, session, router]);
 
+  const [isQueued, setIsQueued] = useState(false);
+  const [queueStatus, setQueueStatus] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeWaiters, setActiveWaiters] = useState(0);
+
+  // Poll for queue status and count
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isQueued) {
-      interval = setInterval(async () => {
-        try {
-          const res = await fetch("/api/queue", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "status" }),
-          });
-          const data = await res.json();
-          if (data.matched) {
-            setIsQueued(false);
-            setQueueStatus("Matched! Redirecting...");
-            setTimeout(() => router.push(`/chat/${data.chatId}`), 500);
-          } else {
-            setIsQueued(data.isQueued);
-          }
-        } catch (e) {
-          console.error(e);
+    const checkStatus = async () => {
+      try {
+        const res = await fetch("/api/queue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "status" }),
+        });
+        const data = await res.json();
+        
+        if (data.queueCount !== undefined) {
+          setActiveWaiters(data.queueCount);
         }
-      }, 3000);
-    }
+
+        if (data.matched) {
+          setIsQueued(false);
+          setQueueStatus("Matched! Redirecting...");
+          setTimeout(() => router.push(`/chat/${data.chatId}`), 500);
+        } else {
+          setIsQueued(data.isQueued);
+          if (data.isQueued) {
+            setQueueStatus("Waiting for a partner...");
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    // Initial check
+    checkStatus();
+
+    // Set up polling
+    const interval = setInterval(checkStatus, 3000);
     return () => clearInterval(interval);
-  }, [isQueued, router]);
+  }, [router]);
 
   const toggleQueue = async () => {
     setIsLoading(true);
@@ -56,6 +70,10 @@ export default function Dashboard() {
       });
       const data = await res.json();
       
+      if (data.queueCount !== undefined) {
+        setActiveWaiters(data.queueCount);
+      }
+
       if (data.matched) {
         setIsQueued(false);
         setQueueStatus("Matched! Redirecting...");
@@ -99,6 +117,12 @@ export default function Dashboard() {
             </div>
             
             <h2 className="text-3xl font-black text-forest-deep mb-3">1-on-1 Peer Talk</h2>
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span className="text-sm font-bold text-forest-dark/60 uppercase tracking-widest">
+                {activeWaiters} {activeWaiters === 1 ? 'person' : 'people'} in queue
+              </span>
+            </div>
             <p className="text-forest-dark/70 mb-8 max-w-sm mx-auto font-medium">
               Jump into a live queue to connect with someone and practice your languages instantly.
             </p>
