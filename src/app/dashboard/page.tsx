@@ -33,7 +33,7 @@ export default function Dashboard() {
           if (data.matched) {
             setIsQueued(false);
             setQueueStatus("Matched! Redirecting...");
-            router.push(`/chat/${data.chatId}`);
+            setTimeout(() => router.push(`/chat/${data.chatId}`), 500);
           } else {
             setIsQueued(data.isQueued);
           }
@@ -59,7 +59,7 @@ export default function Dashboard() {
       if (data.matched) {
         setIsQueued(false);
         setQueueStatus("Matched! Redirecting...");
-        router.push(`/chat/${data.chatId}`);
+        setTimeout(() => router.push(`/chat/${data.chatId}`), 1000);
       } else {
         setIsQueued(action === "join");
         setQueueStatus(action === "join" ? "Waiting for a partner..." : "");
