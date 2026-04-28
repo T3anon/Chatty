@@ -47,6 +47,7 @@ model User {
   queuedAt          DateTime?
   accounts          Account[]
   chats             ChatParticipant[]
+  messages          Message[]
   sessions          Session[]
 }
 
@@ -87,4 +88,5 @@ model Message {
   content   String
   createdAt DateTime @default(now())
   chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
 }
