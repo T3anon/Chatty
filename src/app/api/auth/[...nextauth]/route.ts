@@ -78,9 +78,12 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = (user as any).username;
+        token.image = (user as any).image;
       }
-      if (trigger === "update" && session?.username) {
-        token.username = session.username;
+      if (trigger === "update" && session) {
+        if (session.username) token.username = session.username;
+        if (session.image) token.image = session.image;
+        if (session.name) token.name = session.name;
       }
       return token;
     },
@@ -88,7 +91,10 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).username = token.username;
+        session.user.image = token.image as string | null;
+        session.user.name = token.name as string | null;
       }
+      console.log('Session Callback Output:', JSON.stringify(session, null, 2));
       return session;
     },
     async redirect({ url, baseUrl }) {

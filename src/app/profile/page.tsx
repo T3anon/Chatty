@@ -84,13 +84,9 @@ export default function ProfilePage() {
         setSuccess(true);
         // Update session to reflect username/image changes in nav
         await updateSession({
-          ...session,
-          user: {
-            ...session?.user,
-            name: formData.name,
-            username: formData.username,
-            image: formData.image,
-          }
+          name: formData.name,
+          username: formData.username,
+          image: formData.image,
         });
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -116,10 +112,10 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-forest-light/30 p-4 md:p-8 font-sans">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 flex items-center gap-4">
-          <Link href="/dashboard" className="p-2 hover:bg-white rounded-full transition shadow-sm border border-forest-mid/20">
-            <ArrowLeft size={20} className="text-forest-dark" />
+          <Link href="/dashboard" className="w-10 h-10 bg-white rounded-full flex items-center justify-center transition shadow-sm border border-white hover:bg-forest-light">
+            <ArrowLeft size={20} className="text-black" />
           </Link>
-          <h1 className="text-2xl font-black text-forest-deep">Your Profile</h1>
+          <h1 className="text-2xl font-black text-white">Your Profile</h1>
         </div>
 
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-forest-dark/5 border border-forest-mid/10 overflow-hidden">

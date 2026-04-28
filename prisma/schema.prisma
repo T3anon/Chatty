@@ -7,20 +7,20 @@ datasource db {
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  id                       String  @id @default(cuid())
+  userId                   String
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String?
+  access_token             String?
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String?
+  session_state            String?
   refresh_token_expires_in Int?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -39,16 +39,15 @@ model User {
   username          String?           @unique
   email             String?           @unique
   emailVerified     DateTime?
-  image             String?           @db.Text
+  image             String?
   password          String?
-  fluentLanguages   String?           @db.Text
-  learningLanguages String?           @db.Text
+  fluentLanguages   String?
+  learningLanguages String?
   isQueued          Boolean           @default(false)
   queuedAt          DateTime?
   accounts          Account[]
   chats             ChatParticipant[]
   sessions          Session[]
-  messages          Message[]
 }
 
 model VerificationToken {
@@ -62,10 +61,10 @@ model VerificationToken {
 model Chat {
   id           String            @id @default(cuid())
   type         String
-  status       String            @default("ACTIVE")
   language     String?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
+  status       String            @default("ACTIVE")
   participants ChatParticipant[]
   messages     Message[]
 }
@@ -88,5 +87,4 @@ model Message {
   content   String
   createdAt DateTime @default(now())
   chat      Chat     @relation(fields: [chatId], references: [id])
-  sender    User     @relation(fields: [senderId], references: [id])
 }

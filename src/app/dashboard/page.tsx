@@ -112,19 +112,12 @@ export default function Dashboard() {
             </Link>
             <div>
               <h1 className="text-2xl font-black text-forest-deep tracking-tight">
-                Welcome back, {(session?.user as any)?.username || "Gardener"}
+                Welcome back {(session?.user as any)?.username || "Gardener"}!
               </h1>
               <p className="text-forest-dark/60 text-sm font-medium">Your language garden is thriving</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link 
-              href="/profile"
-              className="bg-white text-forest-dark px-5 py-2.5 rounded-xl font-bold hover:bg-forest-light transition border border-forest-mid/20 flex items-center gap-2"
-            >
-              <Settings size={18} />
-              <span className="hidden md:inline">Settings</span>
-            </Link>
             <button 
               onClick={() => signOut({ callbackUrl: '/' })}
               className="bg-forest-light text-forest-dark px-5 py-2.5 rounded-xl font-bold hover:bg-forest-mid/30 transition border border-forest-mid/20 flex items-center gap-2"
