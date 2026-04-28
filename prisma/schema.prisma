@@ -39,7 +39,6 @@ model User {
   username          String?           @unique
   email             String?           @unique
   emailVerified     DateTime?
-  image             String?
   password          String?
   fluentLanguages   String?
   learningLanguages String?

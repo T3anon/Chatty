@@ -100,11 +100,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-4">
             <Link href="/profile" className="relative group">
               <div className="w-16 h-16 rounded-2xl overflow-hidden bg-forest-light flex items-center justify-center border-2 border-forest-mid/20 group-hover:border-forest-dark transition-all">
-                {session?.user?.image ? (
-                  <img src={session.user.image} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <UserIcon className="w-8 h-8 text-forest-dark/40" />
-                )}
+                <UserIcon className="w-8 h-8 text-forest-dark/40" />
               </div>
               <div className="absolute -bottom-1 -right-1 bg-forest-dark text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                 <Settings size={12} />
@@ -178,22 +174,22 @@ export default function Dashboard() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-50 grayscale pointer-events-none">
-             <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-forest-mid/30">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-3xl border border-forest-mid/20 shadow-sm">
                 <h3 className="font-bold text-forest-dark mb-1 text-sm uppercase tracking-wider">Coming Soon</h3>
                 <p className="text-forest-dark/40 text-sm font-medium">Find specialized teachers for 1-on-1 coaching.</p>
              </div>
-             <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-forest-mid/30">
+             <div className="bg-white p-6 rounded-3xl border border-forest-mid/20 shadow-sm">
                 <h3 className="font-bold text-forest-dark mb-1 text-sm uppercase tracking-wider">Coming Soon</h3>
-                <p className="text-forest-dark/40 text-sm font-medium">
-                  Specialized learning modules.{" "}
-                  <a 
+                <p className="text-forest-dark/60 text-sm font-medium">
+                  Specialized learning modules.{" "}<br />
+                  <a
                     href="https://www.duolingo.com" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-forest-mid hover:text-forest-dark underline transition-colors"
+                    className="text-forest-mid hover:text-forest-dark font-bold underline transition-colors"
                   >
-                    Visit Duolingo
+                    Visit Duolingo for more right now!
                   </a>
                 </p>
              </div>

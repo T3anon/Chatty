@@ -18,7 +18,6 @@ export async function GET(req: Request) {
         name: true,
         username: true,
         email: true,
-        image: true,
         fluentLanguages: true,
         learningLanguages: true,
       },
@@ -37,10 +36,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { name, username, fluentLanguages, learningLanguages, image } = await req.json();
+  const { name, username, fluentLanguages, learningLanguages } = await req.json();
 
   if (!username || !fluentLanguages || !learningLanguages) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  // Server-side validation for comma separation
+  const validateLanguages = (str: string) => {
+    if (!str || !str.trim()) return false;
+    const words = str.trim().split(/\s+/);
+    if (words.length > 1 && !str.includes(",")) {
+      return false;
+    }
+    return true;
+  };
+
+  if (!validateLanguages(fluentLanguages)) {
+    return NextResponse.json({ error: "Fluent languages must be comma-separated" }, { status: 400 });
+  }
+
+  if (!validateLanguages(learningLanguages)) {
+    return NextResponse.json({ error: "Learning languages must be comma-separated" }, { status: 400 });
   }
 
   try {
@@ -51,7 +68,6 @@ export async function POST(req: Request) {
         username,
         fluentLanguages,
         learningLanguages,
-        image,
       },
     });
 

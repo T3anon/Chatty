@@ -7,43 +7,22 @@ import { prisma } from "@/lib/prisma";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   secret: process.env.NEXTAUTH_SECRET,
-  debug: true,
+  debug: false,
   session: {
     strategy: "jwt",
-  },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
   },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+        }
+      },
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -58,12 +37,16 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         });
 
-        if (!user || !user.password) return null;
+        if (!user || !user.password) {
+          console.log('User not found or has no password:', credentials.email);
+          return null;
+        }
 
         // In a real app, use bcrypt to compare passwords
-        // For now, since we haven't installed bcrypt yet, we'll do a simple check
-        // but we SHOULD install bcrypt
-        if (user.password !== credentials.password) return null;
+        if (user.password !== credentials.password) {
+          console.log('Invalid password for user:', credentials.email);
+          return null;
+        }
 
         return user;
       }
@@ -78,11 +61,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = (user as any).username;
-        token.image = (user as any).image;
       }
       if (trigger === "update" && session) {
         if (session.username) token.username = session.username;
-        if (session.image) token.image = session.image;
         if (session.name) token.name = session.name;
       }
       return token;
@@ -91,14 +72,11 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).username = token.username;
-        session.user.image = token.image as string | null;
         session.user.name = token.name as string | null;
       }
-      console.log('Session Callback Output:', JSON.stringify(session, null, 2));
       return session;
     },
     async redirect({ url, baseUrl }) {
-      console.log('Redirect Callback:', { url, baseUrl });
       // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`
       // Allows callback URLs on the same origin
@@ -106,27 +84,13 @@ export const authOptions: NextAuthOptions = {
       return baseUrl
     },
     async signIn({ user, account, profile, email, credentials }) {
-      console.log('SignIn Callback:', { userEmail: user?.email, provider: account?.provider });
       if (!process.env.NEXTAUTH_SECRET) {
         console.error('CRITICAL: NEXTAUTH_SECRET is not defined!');
-      }
-      if (!process.env.NEXTAUTH_URL) {
-        console.warn('WARNING: NEXTAUTH_URL is not defined! Current origin will be used.');
       }
       return true;
     },
   },
-  events: {
-    async signIn(message) {
-      console.log('SignIn Event:', JSON.stringify(message, null, 2));
-    },
-    async createUser(message) {
-      console.log('CreateUser Event:', JSON.stringify(message, null, 2));
-    },
-    async linkAccount(message) {
-      console.log('LinkAccount Event:', JSON.stringify(message, null, 2));
-    },
-  },
+  events: {},
 };
 
 const handler = NextAuth(authOptions);

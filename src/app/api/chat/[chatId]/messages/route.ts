@@ -33,7 +33,6 @@ export async function GET(
       sender: {
         select: {
           name: true,
-          image: true,
           username: true
         }
       }

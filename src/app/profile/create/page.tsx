@@ -11,6 +11,16 @@ export default function CreateProfilePage() {
   const [fluentLanguages, setFluentLanguages] = useState("");
   const [learningLanguages, setLearningLanguages] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const validateLanguages = (str: string) => {
+    if (!str.trim()) return false;
+    const words = str.trim().split(/\s+/);
+    if (words.length > 1 && !str.includes(",")) {
+      return false;
+    }
+    return true;
+  };
 
   if (status === "loading") return <div className="p-10 text-center text-gray-900">Loading...</div>;
   if (status === "unauthenticated") {
@@ -21,6 +31,19 @@ export default function CreateProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError("");
+
+    if (!validateLanguages(fluentLanguages)) {
+      setError("Fluent languages must be separated by commas (e.g., English, Spanish)");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!validateLanguages(learningLanguages)) {
+      setError("Learning languages must be separated by commas (e.g., French, Japanese)");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/profile", {
@@ -93,6 +116,7 @@ export default function CreateProfilePage() {
         >
           {isSubmitting ? "Saving..." : "Create Profile"}
         </button>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
       </form>
     </div>
   );

@@ -16,12 +16,23 @@ export default function ProfilePage() {
     username: "",
     fluentLanguages: "",
     learningLanguages: "",
-    image: "",
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const validateLanguages = (str: string) => {
+    // If the field is empty, it's invalid (required attribute covers this, but for completeness)
+    if (!str.trim()) return false;
+    
+    // Check if it contains multiple words without commas
+    const words = str.trim().split(/\s+/);
+    if (words.length > 1 && !str.includes(",")) {
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -41,7 +52,6 @@ export default function ProfilePage() {
           username: data.username || "",
           fluentLanguages: data.fluentLanguages || "",
           learningLanguages: data.learningLanguages || "",
-          image: data.image || "",
         });
       }
     } catch (err) {
@@ -51,26 +61,23 @@ export default function ProfilePage() {
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 1024 * 1024) {
-        setError("Image size should be less than 1MB");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, image: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setError("");
     setSuccess(false);
+
+    if (!validateLanguages(formData.fluentLanguages)) {
+      setError("Fluent languages must be separated by commas (e.g., English, Spanish)");
+      setIsSaving(false);
+      return;
+    }
+
+    if (!validateLanguages(formData.learningLanguages)) {
+      setError("Learning languages must be separated by commas (e.g., French, Japanese)");
+      setIsSaving(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/profile", {
@@ -82,11 +89,10 @@ export default function ProfilePage() {
       if (res.ok) {
         const updatedUser = await res.json();
         setSuccess(true);
-        // Update session to reflect username/image changes in nav
+        // Update session to reflect username changes in nav
         await updateSession({
           name: formData.name,
           username: formData.username,
-          image: formData.image,
         });
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -120,36 +126,6 @@ export default function ProfilePage() {
 
         <div className="bg-white rounded-[2.5rem] shadow-xl shadow-forest-dark/5 border border-forest-mid/10 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-8">
-            {/* Profile Picture */}
-            <div className="flex flex-col items-center">
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-forest-light shadow-inner bg-forest-light/50 flex items-center justify-center">
-                  {formData.image ? (
-                    <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-4xl font-black text-forest-dark/40">
-                      {formData.username?.[0]?.toUpperCase() || formData.name?.[0]?.toUpperCase() || "?"}
-                    </span>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 p-2 bg-forest-dark text-white rounded-xl shadow-lg hover:bg-forest-deep transition transform hover:scale-110"
-                >
-                  <Camera size={20} />
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </div>
-              <p className="mt-4 text-sm font-bold text-forest-dark/60 uppercase tracking-widest">Update Photo</p>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="space-y-2">
@@ -181,7 +157,7 @@ export default function ProfilePage() {
             <div className="space-y-6">
               {/* Fluent Languages */}
               <div className="space-y-2">
-                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Languages you speak fluently</label>
+                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Languages you speak fluently (comma separated)</label>
                 <input
                   type="text"
                   required
@@ -194,7 +170,7 @@ export default function ProfilePage() {
 
               {/* Learning Languages */}
               <div className="space-y-2">
-                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Languages you want to learn</label>
+                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Languages you want to learn (comma separated)</label>
                 <input
                   type="text"
                   required

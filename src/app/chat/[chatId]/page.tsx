@@ -161,13 +161,9 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
             >
               {!isMine && (
                 <div className="w-8 h-8 rounded-xl overflow-hidden bg-forest-light flex-shrink-0 mb-1 border border-forest-mid/20">
-                  {sender.image ? (
-                    <img src={sender.image} alt={sender.name} className="w-full h-full object-cover" />
-                  ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-forest-dark/40">
                       {sender.username?.[0]?.toUpperCase() || "?"}
                     </div>
-                  )}
                 </div>
               )}
               <div 
@@ -189,13 +185,9 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
               </div>
               {isMine && (
                 <div className="w-8 h-8 rounded-xl overflow-hidden bg-forest-dark flex-shrink-0 mb-1 border border-forest-mid/20">
-                  {session?.user?.image ? (
-                    <img src={session.user.image} alt="Me" className="w-full h-full object-cover" />
-                  ) : (
                     <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-forest-light/50">
                       ME
                     </div>
-                  )}
                 </div>
               )}
             </div>
