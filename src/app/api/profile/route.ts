@@ -3,6 +3,33 @@ import { authOptions } from "../auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export async function GET(req: Request) {
+  const session = await getServerSession(authOptions);
+
+  if (!session || !session.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email! },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        image: true,
+        fluentLanguages: true,
+        learningLanguages: true,
+      },
+    });
+
+    return NextResponse.json(user);
+  } catch (error) {
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
@@ -10,19 +37,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { username, fluentLanguages, learningLanguages } = await req.json();
+  const { name, username, fluentLanguages, learningLanguages, image } = await req.json();
 
   if (!username || !fluentLanguages || !learningLanguages) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   try {
     const updatedUser = await prisma.user.update({
       where: { email: session.user.email! },
       data: {
+        name,
         username,
         fluentLanguages,
         learningLanguages,
+        image,
       },
     });
 

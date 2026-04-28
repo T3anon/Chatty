@@ -48,6 +48,7 @@ model User {
   accounts          Account[]
   chats             ChatParticipant[]
   sessions          Session[]
+  messages          Message[]
 }
 
 model VerificationToken {
@@ -87,4 +88,5 @@ model Message {
   content   String
   createdAt DateTime @default(now())
   chat      Chat     @relation(fields: [chatId], references: [id])
+  sender    User     @relation(fields: [senderId], references: [id])
 }

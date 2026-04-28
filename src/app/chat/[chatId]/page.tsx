@@ -153,11 +153,23 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
         )}
         {messages.map((msg) => {
           const isMine = msg.senderId === userId;
+          const sender = msg.sender || {};
           return (
             <div 
               key={msg.id} 
-              className={`flex ${isMine ? "justify-end" : "justify-start"}`}
+              className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"}`}
             >
+              {!isMine && (
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 mb-1 border border-gray-100">
+                  {sender.image ? (
+                    <img src={sender.image} alt={sender.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-400">
+                      {sender.username?.[0]?.toUpperCase() || "?"}
+                    </div>
+                  )}
+                </div>
+              )}
               <div 
                 className={`max-w-[70%] p-3 rounded-2xl shadow-sm ${
                   isMine 
@@ -165,11 +177,27 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
                     : "bg-white text-gray-800 border rounded-bl-none"
                 }`}
               >
+                {!isMine && (
+                  <span className="text-[10px] font-black block mb-1 text-purple-600 uppercase tracking-wider">
+                    {sender.username || "Partner"}
+                  </span>
+                )}
                 <p className="text-sm">{msg.content}</p>
                 <span className={`text-[10px] mt-1 block opacity-70 ${isMine ? "text-right" : ""}`}>
                   {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
+              {isMine && (
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-purple-100 flex-shrink-0 mb-1 border border-purple-200">
+                  {session?.user?.image ? (
+                    <img src={session.user.image} alt="Me" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-purple-400">
+                      ME
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}

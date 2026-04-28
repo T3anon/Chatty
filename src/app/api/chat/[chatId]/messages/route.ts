@@ -29,6 +29,15 @@ export async function GET(
   const messages = await prisma.message.findMany({
     where: { chatId },
     orderBy: { createdAt: "asc" },
+    include: {
+      sender: {
+        select: {
+          name: true,
+          image: true,
+          username: true
+        }
+      }
+    }
   });
 
   const chat = await prisma.chat.findUnique({

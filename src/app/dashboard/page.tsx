@@ -3,6 +3,8 @@
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Settings, LogOut, User as UserIcon } from "lucide-react";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -95,18 +97,42 @@ export default function Dashboard() {
     <div className="min-h-screen bg-forest-light/30 p-4 md:p-8 font-sans">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-forest-mid/20">
-          <div>
-            <h1 className="text-2xl font-black text-forest-deep tracking-tight">
-              Welcome back, {session?.user?.name?.split(' ')[0] || "Gardener"}
-            </h1>
-            <p className="text-forest-dark/60 text-sm font-medium">Your language garden is thriving</p>
+          <div className="flex items-center gap-4">
+            <Link href="/profile" className="relative group">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-forest-light flex items-center justify-center border-2 border-forest-mid/20 group-hover:border-forest-dark transition-all">
+                {session?.user?.image ? (
+                  <img src={session.user.image} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <UserIcon className="w-8 h-8 text-forest-dark/40" />
+                )}
+              </div>
+              <div className="absolute -bottom-1 -right-1 bg-forest-dark text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                <Settings size={12} />
+              </div>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-black text-forest-deep tracking-tight">
+                Welcome back, {session?.user?.name?.split(' ')[0] || "Gardener"}
+              </h1>
+              <p className="text-forest-dark/60 text-sm font-medium">Your language garden is thriving</p>
+            </div>
           </div>
-          <button 
-            onClick={() => signOut({ callbackUrl: '/' })}
-            className="bg-forest-light text-forest-dark px-5 py-2.5 rounded-xl font-bold hover:bg-forest-mid/30 transition border border-forest-mid/20"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/profile"
+              className="bg-white text-forest-dark px-5 py-2.5 rounded-xl font-bold hover:bg-forest-light transition border border-forest-mid/20 flex items-center gap-2"
+            >
+              <Settings size={18} />
+              <span className="hidden md:inline">Settings</span>
+            </Link>
+            <button 
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="bg-forest-light text-forest-dark px-5 py-2.5 rounded-xl font-bold hover:bg-forest-mid/30 transition border border-forest-mid/20 flex items-center gap-2"
+            >
+              <LogOut size={18} />
+              <span className="hidden md:inline">Sign Out</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8">
