@@ -34,18 +34,62 @@ export async function POST(req: Request) {
 
     // Use a transaction to ensure atomicity
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Try to find someone else already in queue first
-      const match = await tx.user.findFirst({
-        where: {
-          isQueued: true,
-          id: { not: userId },
-        },
-        orderBy: {
-          queuedAt: "asc",
-        },
-      });
+    // 1. Get current user's languages
+    const currentUser = await tx.user.findUnique({
+      where: { id: userId },
+      select: { fluentLanguages: true, learningLanguages: true }
+    });
 
-      if (match) {
+    if (!currentUser?.fluentLanguages || !currentUser?.learningLanguages) {
+      // If they haven't set up languages, we can't match them based on these rules
+      // Put them in queue anyway, but they might not find matches easily
+      await tx.user.update({
+        where: { id: userId },
+        data: { isQueued: true, queuedAt: new Date() },
+      });
+      return { matched: false };
+    }
+
+    const currentFluent = currentUser.fluentLanguages.split(',').map(s => s.trim().toLowerCase());
+    const currentLearning = currentUser.learningLanguages.split(',').map(s => s.trim().toLowerCase());
+
+    // 2. Try to find someone else already in queue first who matches the language criteria
+    const potentialMatches = await tx.user.findMany({
+      where: {
+        isQueued: true,
+        id: { not: userId },
+      },
+      orderBy: {
+        queuedAt: "asc",
+      },
+      select: {
+        id: true,
+        fluentLanguages: true,
+        learningLanguages: true,
+      }
+    });
+
+    let match = null;
+    for (const p of potentialMatches) {
+      if (!p.fluentLanguages || !p.learningLanguages) continue;
+
+      const pFluent = p.fluentLanguages.split(',').map(s => s.trim().toLowerCase());
+      const pLearning = p.learningLanguages.split(',').map(s => s.trim().toLowerCase());
+
+      // Check if they share at least one fluent language
+      const commonFluent = currentFluent.filter(l => pFluent.includes(l));
+      if (commonFluent.length === 0) continue;
+
+      // Check if they share at least one learning language
+      const commonLearning = currentLearning.filter(l => pLearning.includes(l));
+      if (commonLearning.length === 0) continue;
+
+      // Found a match!
+      match = p;
+      break;
+    }
+
+    if (match) {
         // Create a 1-on-1 chat
         const chat = await tx.chat.create({
           data: {

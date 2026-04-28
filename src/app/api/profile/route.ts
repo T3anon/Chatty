@@ -42,22 +42,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  // Server-side validation for comma separation
+  // Server-side validation for comma separation and spelled properly
+  const COMMON_LANGUAGES = [
+    "English", "Spanish", "French", "German", "Italian", "Portuguese", "Russian", "Chinese", 
+    "Japanese", "Korean", "Arabic", "Hindi", "Bengali", "Turkish", "Dutch", "Swedish", 
+    "Norwegian", "Danish", "Finnish", "Greek", "Hebrew", "Polish", "Romanian", "Thai", 
+    "Vietnamese", "Indonesian", "Malay", "Czech", "Hungarian", "Ukrainian"
+  ];
+
   const validateLanguages = (str: string) => {
     if (!str || !str.trim()) return false;
-    const words = str.trim().split(/\s+/);
-    if (words.length > 1 && !str.includes(",")) {
+    const wordsRaw = str.trim().split(/\s+/);
+    if (wordsRaw.length > 1 && !str.includes(",")) {
       return false;
     }
+
+    // Check if each language is in our list and spelled properly
+    const languages = str.split(",").map(lang => lang.trim()).filter(lang => lang !== "");
+    for (const lang of languages) {
+      if (!COMMON_LANGUAGES.some(valid => valid.toLowerCase() === lang.toLowerCase())) {
+        return false;
+      }
+    }
+
     return true;
   };
 
   if (!validateLanguages(fluentLanguages)) {
-    return NextResponse.json({ error: "Fluent languages must be comma-separated" }, { status: 400 });
+    return NextResponse.json({ error: "Please ensure fluent languages are spelled correctly and comma-separated" }, { status: 400 });
   }
 
   if (!validateLanguages(learningLanguages)) {
-    return NextResponse.json({ error: "Learning languages must be comma-separated" }, { status: 400 });
+    return NextResponse.json({ error: "Please ensure learning languages are spelled correctly and comma-separated" }, { status: 400 });
   }
 
   try {

@@ -13,12 +13,28 @@ export default function CreateProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  const COMMON_LANGUAGES = [
+    "English", "Spanish", "French", "German", "Italian", "Portuguese", "Russian", "Chinese", 
+    "Japanese", "Korean", "Arabic", "Hindi", "Bengali", "Turkish", "Dutch", "Swedish", 
+    "Norwegian", "Danish", "Finnish", "Greek", "Hebrew", "Polish", "Romanian", "Thai", 
+    "Vietnamese", "Indonesian", "Malay", "Czech", "Hungarian", "Ukrainian"
+  ];
+
   const validateLanguages = (str: string) => {
     if (!str.trim()) return false;
-    const words = str.trim().split(/\s+/);
-    if (words.length > 1 && !str.includes(",")) {
+    const wordsRaw = str.trim().split(/\s+/);
+    if (wordsRaw.length > 1 && !str.includes(",")) {
       return false;
     }
+
+    // Check if each language is in our list and spelled properly
+    const languages = str.split(",").map(lang => lang.trim()).filter(lang => lang !== "");
+    for (const lang of languages) {
+      if (!COMMON_LANGUAGES.some(valid => valid.toLowerCase() === lang.toLowerCase())) {
+        return false;
+      }
+    }
+
     return true;
   };
 
@@ -34,13 +50,13 @@ export default function CreateProfilePage() {
     setError("");
 
     if (!validateLanguages(fluentLanguages)) {
-      setError("Fluent languages must be separated by commas (e.g., English, Spanish)");
+      setError("Please ensure fluent languages are spelled correctly and separated by commas (e.g., English, Spanish)");
       setIsSubmitting(false);
       return;
     }
 
     if (!validateLanguages(learningLanguages)) {
-      setError("Learning languages must be separated by commas (e.g., French, Japanese)");
+      setError("Please ensure learning languages are spelled correctly and separated by commas (e.g., French, Japanese)");
       setIsSubmitting(false);
       return;
     }

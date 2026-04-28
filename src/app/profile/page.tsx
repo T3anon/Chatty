@@ -22,25 +22,33 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const COMMON_LANGUAGES = [
+    "English", "Spanish", "French", "German", "Italian", "Portuguese", "Russian", "Chinese", 
+    "Japanese", "Korean", "Arabic", "Hindi", "Bengali", "Turkish", "Dutch", "Swedish", 
+    "Norwegian", "Danish", "Finnish", "Greek", "Hebrew", "Polish", "Romanian", "Thai", 
+    "Vietnamese", "Indonesian", "Malay", "Czech", "Hungarian", "Ukrainian"
+  ];
+
   const validateLanguages = (str: string) => {
     // If the field is empty, it's invalid (required attribute covers this, but for completeness)
     if (!str.trim()) return false;
     
     // Check if it contains multiple words without commas
-    const words = str.trim().split(/\s+/);
-    if (words.length > 1 && !str.includes(",")) {
+    const wordsRaw = str.trim().split(/\s+/);
+    if (wordsRaw.length > 1 && !str.includes(",")) {
       return false;
     }
+
+    // Check if each language is in our list and spelled properly
+    const languages = str.split(",").map(lang => lang.trim()).filter(lang => lang !== "");
+    for (const lang of languages) {
+      if (!COMMON_LANGUAGES.some(valid => valid.toLowerCase() === lang.toLowerCase())) {
+        return false;
+      }
+    }
+
     return true;
   };
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin");
-    } else if (status === "authenticated") {
-      fetchProfile();
-    }
-  }, [status, router]);
 
   const fetchProfile = async () => {
     try {
@@ -61,6 +69,14 @@ export default function ProfilePage() {
     }
   };
 
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+    } else if (status === "authenticated") {
+      fetchProfile();
+    }
+  }, [status, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -68,13 +84,13 @@ export default function ProfilePage() {
     setSuccess(false);
 
     if (!validateLanguages(formData.fluentLanguages)) {
-      setError("Fluent languages must be separated by commas (e.g., English, Spanish)");
+      setError("Please ensure fluent languages are spelled correctly and separated by commas (e.g., English, Spanish) If your language is not currently accepted we apologize, more will be added soon!");
       setIsSaving(false);
       return;
     }
 
     if (!validateLanguages(formData.learningLanguages)) {
-      setError("Learning languages must be separated by commas (e.g., French, Japanese)");
+      setError("Please ensure learning languages are spelled correctly and separated by commas (e.g., French, Japanese) If your language is not currently accepted we apologize, more will be added soon!");
       setIsSaving(false);
       return;
     }
