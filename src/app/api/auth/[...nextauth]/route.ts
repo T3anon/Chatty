@@ -61,10 +61,14 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = (user as any).username;
+        token.fluentLanguages = (user as any).fluentLanguages;
+        token.learningLanguages = (user as any).learningLanguages;
       }
       if (trigger === "update" && session) {
         if (session.username) token.username = session.username;
         if (session.name) token.name = session.name;
+        if (session.fluentLanguages) token.fluentLanguages = session.fluentLanguages;
+        if (session.learningLanguages) token.learningLanguages = session.learningLanguages;
       }
       return token;
     },
@@ -72,6 +76,8 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).username = token.username;
+        (session.user as any).fluentLanguages = token.fluentLanguages;
+        (session.user as any).learningLanguages = token.learningLanguages;
         session.user.name = token.name as string | null;
       }
       return session;

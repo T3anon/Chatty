@@ -20,7 +20,10 @@ export async function POST(req: Request) {
     const activeMatch = await prisma.chatParticipant.findFirst({
         where: { 
           userId: userId,
-          chat: { status: "ACTIVE" }
+          chat: { 
+            status: "ACTIVE",
+            type: "ONE_ON_ONE"
+          }
         },
         orderBy: { chat: { createdAt: 'desc' } },
         include: { chat: true }

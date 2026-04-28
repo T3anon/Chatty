@@ -109,6 +109,8 @@ export default function ProfilePage() {
         await updateSession({
           name: formData.name,
           username: formData.username,
+          fluentLanguages: formData.fluentLanguages,
+          learningLanguages: formData.learningLanguages,
         });
         setTimeout(() => setSuccess(false), 3000);
       } else {

@@ -44,6 +44,13 @@ model User {
   learningLanguages String?
   isQueued          Boolean           @default(false)
   queuedAt          DateTime?
+  
+  // Coaching Queue
+  isCoachingQueued  Boolean           @default(false)
+  coachingRole      String?           // "TEACHER" or "STUDENT"
+  coachingLanguages String?           // Selected languages for this session
+  coachingQueuedAt  DateTime?
+
   accounts          Account[]
   chats             ChatParticipant[]
   messages          Message[]

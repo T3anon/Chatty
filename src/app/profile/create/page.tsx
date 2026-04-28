@@ -74,7 +74,11 @@ export default function CreateProfilePage() {
 
       if (res.ok) {
         // Force the session to update so the dashboard knows we have a username now
-        await update({ username });
+        await update({ 
+          username,
+          fluentLanguages,
+          learningLanguages
+        });
         router.push("/dashboard");
         router.refresh();
       } else {
