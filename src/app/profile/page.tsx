@@ -106,40 +106,40 @@ export default function ProfilePage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+      <div className="min-h-screen flex items-center justify-center bg-forest-light/30">
+        <Loader2 className="w-8 h-8 animate-spin text-forest-dark" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-forest-light/30 p-4 md:p-8 font-sans">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 flex items-center gap-4">
-          <Link href="/dashboard" className="p-2 hover:bg-white rounded-full transition shadow-sm border border-gray-100">
-            <ArrowLeft size={20} className="text-gray-600" />
+          <Link href="/dashboard" className="p-2 hover:bg-white rounded-full transition shadow-sm border border-forest-mid/20">
+            <ArrowLeft size={20} className="text-forest-dark" />
           </Link>
-          <h1 className="text-2xl font-black text-gray-900">Your Profile</h1>
+          <h1 className="text-2xl font-black text-forest-deep">Your Profile</h1>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-[2.5rem] shadow-xl shadow-forest-dark/5 border border-forest-mid/10 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-8">
             {/* Profile Picture */}
             <div className="flex flex-col items-center">
               <div className="relative group">
-                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-50 shadow-inner bg-gray-100 flex items-center justify-center">
+                <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-forest-light shadow-inner bg-forest-light/50 flex items-center justify-center">
                   {formData.image ? (
                     <img src={formData.image} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-4xl font-black text-gray-300">
-                      {formData.name?.[0]?.toUpperCase() || formData.username?.[0]?.toUpperCase() || "?"}
+                    <span className="text-4xl font-black text-forest-dark/40">
+                      {formData.username?.[0]?.toUpperCase() || formData.name?.[0]?.toUpperCase() || "?"}
                     </span>
                   )}
                 </div>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 p-2 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition transform hover:scale-110"
+                  className="absolute bottom-0 right-0 p-2 bg-forest-dark text-white rounded-xl shadow-lg hover:bg-forest-deep transition transform hover:scale-110"
                 >
                   <Camera size={20} />
                 </button>
@@ -151,18 +151,18 @@ export default function ProfilePage() {
                   onChange={handleImageChange}
                 />
               </div>
-              <p className="mt-4 text-sm font-medium text-gray-500 uppercase tracking-widest">Update Photo</p>
+              <p className="mt-4 text-sm font-bold text-forest-dark/60 uppercase tracking-widest">Update Photo</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="space-y-2">
-                <label className="text-sm font-black text-gray-700 uppercase tracking-wider ml-1">Full Name</label>
+                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Full Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. John Doe"
-                  className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-purple-500 transition-all outline-none font-medium"
+                  className="w-full p-4 bg-forest-light/20 border-2 border-transparent rounded-2xl focus:bg-white focus:border-forest-mid transition-all outline-none font-medium text-forest-deep"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -170,12 +170,12 @@ export default function ProfilePage() {
 
               {/* Username */}
               <div className="space-y-2">
-                <label className="text-sm font-black text-gray-700 uppercase tracking-wider ml-1">Username</label>
+                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Username</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. johndoe"
-                  className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-purple-500 transition-all outline-none font-medium"
+                  className="w-full p-4 bg-forest-light/20 border-2 border-transparent rounded-2xl focus:bg-white focus:border-forest-mid transition-all outline-none font-medium text-forest-deep"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 />
@@ -185,12 +185,12 @@ export default function ProfilePage() {
             <div className="space-y-6">
               {/* Fluent Languages */}
               <div className="space-y-2">
-                <label className="text-sm font-black text-gray-700 uppercase tracking-wider ml-1">Languages you speak fluently</label>
+                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Languages you speak fluently</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. English, Spanish"
-                  className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-purple-500 transition-all outline-none font-medium"
+                  className="w-full p-4 bg-forest-light/20 border-2 border-transparent rounded-2xl focus:bg-white focus:border-forest-mid transition-all outline-none font-medium text-forest-deep"
                   value={formData.fluentLanguages}
                   onChange={(e) => setFormData({ ...formData, fluentLanguages: e.target.value })}
                 />
@@ -198,22 +198,22 @@ export default function ProfilePage() {
 
               {/* Learning Languages */}
               <div className="space-y-2">
-                <label className="text-sm font-black text-gray-700 uppercase tracking-wider ml-1">Languages you want to learn</label>
+                <label className="text-sm font-black text-forest-deep uppercase tracking-wider ml-1">Languages you want to learn</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. French, Japanese"
-                  className="w-full p-4 bg-gray-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-purple-500 transition-all outline-none font-medium"
+                  className="w-full p-4 bg-forest-light/20 border-2 border-transparent rounded-2xl focus:bg-white focus:border-forest-mid transition-all outline-none font-medium text-forest-deep"
                   value={formData.learningLanguages}
                   onChange={(e) => setFormData({ ...formData, learningLanguages: e.target.value })}
                 />
               </div>
             </div>
 
-            {error && <p className="text-red-500 text-sm font-bold bg-red-50 p-4 rounded-xl border border-red-100">{error}</p>}
+            {error && <p className="text-red-600 text-sm font-bold bg-red-50 p-4 rounded-xl border border-red-100">{error}</p>}
             
             {success && (
-              <div className="flex items-center gap-2 text-green-600 bg-green-50 p-4 rounded-xl border border-green-100">
+              <div className="flex items-center gap-2 text-green-700 bg-green-50 p-4 rounded-xl border border-green-100">
                 <CheckCircle2 size={20} />
                 <p className="text-sm font-bold">Profile updated successfully!</p>
               </div>
@@ -222,7 +222,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full py-5 bg-purple-600 text-white rounded-2xl font-black text-lg hover:bg-purple-700 transition-all transform active:scale-[0.98] shadow-lg shadow-purple-200 disabled:bg-purple-300 flex items-center justify-center gap-2"
+              className="w-full py-5 bg-forest-dark text-white rounded-2xl font-black text-lg hover:bg-forest-deep transition-all transform active:scale-[0.98] shadow-lg shadow-forest-dark/20 disabled:bg-forest-mid/50 flex items-center justify-center gap-2"
             >
               {isSaving ? (
                 <>

@@ -112,7 +112,7 @@ export default function Dashboard() {
             </Link>
             <div>
               <h1 className="text-2xl font-black text-forest-deep tracking-tight">
-                Welcome back, {session?.user?.name?.split(' ')[0] || "Gardener"}
+                Welcome back, {(session?.user as any)?.username || "Gardener"}
               </h1>
               <p className="text-forest-dark/60 text-sm font-medium">Your language garden is thriving</p>
             </div>
@@ -192,7 +192,17 @@ export default function Dashboard() {
              </div>
              <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-forest-mid/30">
                 <h3 className="font-bold text-forest-dark mb-1 text-sm uppercase tracking-wider">Coming Soon</h3>
-                <p className="text-forest-dark/40 text-sm font-medium">Specialized learning modules.</p>
+                <p className="text-forest-dark/40 text-sm font-medium">
+                  Specialized learning modules.{" "}
+                  <a 
+                    href="https://www.duolingo.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-forest-mid hover:text-forest-dark underline transition-colors"
+                  >
+                    Visit Duolingo
+                  </a>
+                </p>
              </div>
           </div>
         </div>

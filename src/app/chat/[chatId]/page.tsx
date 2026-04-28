@@ -102,16 +102,16 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
   const userId = (session?.user as any)?.id;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-forest-light/30">
       {/* Header */}
-      <div className="bg-white border-b p-4 flex items-center justify-between">
+      <div className="bg-white border-b border-forest-mid/20 p-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-full transition">
-            <ArrowLeft size={20} className="text-gray-600" />
+          <Link href="/dashboard" className="p-2 hover:bg-forest-light rounded-full transition">
+            <ArrowLeft size={20} className="text-forest-dark" />
           </Link>
           <div>
-            <h1 className="font-bold text-gray-900">1-on-1 Session</h1>
-            <p className={`text-xs font-medium ${chatStatus === "ACTIVE" ? "text-green-500" : "text-red-500"}`}>
+            <h1 className="font-bold text-forest-deep">1-on-1 Session</h1>
+            <p className={`text-xs font-bold ${chatStatus === "ACTIVE" ? "text-green-600" : "text-red-500"}`}>
               {chatStatus === "ACTIVE" ? "Connected" : "Session Ended"}
             </p>
           </div>
@@ -134,9 +134,9 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
         className="flex-1 overflow-y-auto p-4 space-y-4"
       >
         {chatStatus === "ENDED" && (
-          <div className="bg-red-50 border border-red-100 p-6 rounded-3xl text-center max-w-md mx-auto my-8">
-            <h3 className="text-red-900 font-bold text-lg mb-2">The session has ended</h3>
-            <p className="text-red-700 text-sm mb-6">This conversation is now closed. We hope you had a great practice!</p>
+          <div className="bg-white border border-red-100 p-8 rounded-[2rem] text-center max-w-md mx-auto my-8 shadow-xl shadow-red-900/5">
+            <h3 className="text-red-900 font-black text-xl mb-2">The session has ended</h3>
+            <p className="text-red-700 font-medium text-sm mb-6">This conversation is now closed. We hope you had a great practice!</p>
             <Link 
               href="/dashboard"
               className="inline-block bg-red-600 text-white px-8 py-3 rounded-2xl font-black hover:bg-red-700 transition shadow-lg shadow-red-200"
@@ -147,7 +147,7 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
         )}
         
         {messages.length === 0 && chatStatus === "ACTIVE" && (
-          <div className="text-center py-10 text-gray-400 italic">
+          <div className="text-center py-10 text-forest-dark/40 font-medium italic">
             No messages yet. Say hello!
           </div>
         )}
@@ -160,39 +160,39 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
               className={`flex items-end gap-2 ${isMine ? "justify-end" : "justify-start"}`}
             >
               {!isMine && (
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0 mb-1 border border-gray-100">
+                <div className="w-8 h-8 rounded-xl overflow-hidden bg-forest-light flex-shrink-0 mb-1 border border-forest-mid/20">
                   {sender.image ? (
                     <img src={sender.image} alt={sender.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-400">
+                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-forest-dark/40">
                       {sender.username?.[0]?.toUpperCase() || "?"}
                     </div>
                   )}
                 </div>
               )}
               <div 
-                className={`max-w-[70%] p-3 rounded-2xl shadow-sm ${
+                className={`max-w-[75%] p-4 rounded-[1.5rem] shadow-sm ${
                   isMine 
-                    ? "bg-purple-600 text-white rounded-br-none" 
-                    : "bg-white text-gray-800 border rounded-bl-none"
+                    ? "bg-forest-dark text-white rounded-br-none" 
+                    : "bg-white text-forest-deep border border-forest-mid/10 rounded-bl-none"
                 }`}
               >
                 {!isMine && (
-                  <span className="text-[10px] font-black block mb-1 text-purple-600 uppercase tracking-wider">
+                  <span className="text-[10px] font-black block mb-1 text-forest-mid uppercase tracking-widest">
                     {sender.username || "Partner"}
                   </span>
                 )}
-                <p className="text-sm">{msg.content}</p>
-                <span className={`text-[10px] mt-1 block opacity-70 ${isMine ? "text-right" : ""}`}>
+                <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
+                <span className={`text-[10px] mt-1 block opacity-50 font-bold ${isMine ? "text-right" : ""}`}>
                   {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
               {isMine && (
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-purple-100 flex-shrink-0 mb-1 border border-purple-200">
+                <div className="w-8 h-8 rounded-xl overflow-hidden bg-forest-dark flex-shrink-0 mb-1 border border-forest-mid/20">
                   {session?.user?.image ? (
                     <img src={session.user.image} alt="Me" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-purple-400">
+                    <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-forest-light/50">
                       ME
                     </div>
                   )}
@@ -204,20 +204,20 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
       </div>
 
       {/* Input area */}
-      <div className={`p-4 bg-white border-t ${chatStatus === "ENDED" ? "opacity-50 pointer-events-none" : ""}`}>
-        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-2">
+      <div className={`p-4 bg-white border-t border-forest-mid/20 ${chatStatus === "ENDED" ? "opacity-50 pointer-events-none" : ""}`}>
+        <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-3">
           <input 
             type="text" 
             placeholder={chatStatus === "ENDED" ? "Chat ended" : "Type your message..."}
             disabled={chatStatus === "ENDED"}
-            className="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
+            className="flex-1 bg-forest-light/20 border border-transparent rounded-2xl px-6 py-3 focus:outline-none focus:bg-white focus:border-forest-mid transition-all text-forest-deep font-medium"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <button 
             type="submit"
             disabled={chatStatus === "ENDED"}
-            className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition shadow-md shadow-purple-200 disabled:bg-gray-400"
+            className="bg-forest-dark text-white p-3 rounded-2xl hover:bg-forest-deep transition shadow-lg shadow-forest-dark/20 disabled:bg-gray-400"
           >
             <Send size={20} />
           </button>
