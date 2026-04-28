@@ -18,7 +18,10 @@ export async function POST(req: Request) {
     
     // Check if user is already in a match (to avoid re-queueing if they already found one)
     const activeMatch = await prisma.chatParticipant.findFirst({
-        where: { userId: userId },
+        where: { 
+          userId: userId,
+          chat: { status: "ACTIVE" }
+        },
         orderBy: { chat: { createdAt: 'desc' } },
         include: { chat: true }
     });
@@ -152,9 +155,12 @@ export async function POST(req: Request) {
 
     console.log(`Status check for ${userId}: isQueued=${user?.isQueued}, totalQueue=${queueCount}`);
 
-    // Check if user is part of a newly created chat
+    // Check if user is part of a newly created active chat
     const latestChat = await prisma.chatParticipant.findFirst({
-        where: { userId: userId },
+        where: { 
+          userId: userId,
+          chat: { status: "ACTIVE" }
+        },
         orderBy: { chat: { createdAt: 'desc' } },
         include: { chat: true }
     });
