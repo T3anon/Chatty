@@ -174,7 +174,7 @@ export async function POST(req: Request) {
          const chatCreatedAt = new Date(latestChat.chat.createdAt).getTime();
          
          // If chat was created AFTER they joined the queue (or very recently)
-         if ((chatCreatedAt > joinedAt - 5000 || !user?.isQueued) && chatAge < 60000) {
+         if ((chatCreatedAt > joinedAt - 2000 || !user?.isQueued) && chatAge < 60000) {
             console.log(`Matched detected in status! Chat: ${latestChat.chatId}`);
             
             if (user?.isQueued) {
