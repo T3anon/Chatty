@@ -7,26 +7,58 @@ import { useRouter } from "next/navigation";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [teacherMatches, setTeacherMatches] = useState([]);
-  const [peerMatches, setPeerMatches] = useState([]);
-  const [targetLang, setTargetLang] = useState("");
+  const [isQueued, setIsQueued] = useState(false);
+  const [queueStatus, setQueueStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/api/auth/signin");
+      router.push("/auth/signin");
     } else if (session?.user && !(session.user as any).username) {
       router.push("/profile/create");
     }
   }, [status, session, router]);
 
-  const fetchTeacherMatches = async () => {
-    if (!targetLang) return;
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isQueued) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch("/api/queue", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "status" }),
+          });
+          const data = await res.json();
+          if (data.matched) {
+            router.push(`/chat/${data.chatId}`);
+          }
+          setIsQueued(data.isQueued);
+        } catch (e) {
+          console.error(e);
+        }
+      }, 3000);
+    }
+    return () => clearInterval(interval);
+  }, [isQueued, router]);
+
+  const toggleQueue = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/matches/teacher?language=${targetLang}`);
+      const action = isQueued ? "leave" : "join";
+      const res = await fetch("/api/queue", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
       const data = await res.json();
-      setTeacherMatches(data);
+      
+      if (data.matched) {
+        router.push(`/chat/${data.chatId}`);
+      } else {
+        setIsQueued(action === "join");
+        setQueueStatus(action === "join" ? "Waiting for a partner..." : "");
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -34,86 +66,79 @@ export default function Dashboard() {
     }
   };
 
-  const fetchPeerMatches = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/matches/peer");
-      const data = await res.json();
-      setPeerMatches(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (status === "loading") return <div className="p-10">Loading...</div>;
+  if (status === "loading") return <div className="p-10 text-center font-medium text-gray-500">Cultivating your dashboard...</div>;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Welcome, {session?.user?.name}</h1>
-        <button 
-          onClick={() => signOut({ callbackUrl: '/' })}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Sign Out
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Teacher-Student Section */}
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">Find a Teacher</h2>
-          <div className="flex gap-2 mb-4">
-            <input 
-              type="text" 
-              placeholder="Language you want to learn" 
-              className="flex-1 border p-2 rounded text-gray-900"
-              value={targetLang}
-              onChange={(e) => setTargetLang(e.target.value)}
-            />
-            <button 
-              onClick={fetchTeacherMatches}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Search
-            </button>
+    <div className="min-h-screen bg-forest-light/30 p-4 md:p-8 font-sans">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-10 bg-white p-6 rounded-3xl shadow-sm border border-forest-mid/20">
+          <div>
+            <h1 className="text-2xl font-black text-forest-deep tracking-tight">
+              Welcome back, {session?.user?.name?.split(' ')[0] || "Gardener"}
+            </h1>
+            <p className="text-forest-dark/60 text-sm font-medium">Your language garden is thriving</p>
           </div>
-          <div className="space-y-3">
-            {teacherMatches.map((t: any) => (
-              <div key={t.id} className="p-3 bg-gray-50 rounded border flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-900">{t.name || t.username}</p>
-                  <p className="text-xs text-gray-500">Fluent: {t.fluentLanguages}</p>
-                </div>
-                <button className="text-sm bg-green-500 text-white px-3 py-1 rounded">Chat</button>
-              </div>
-            ))}
-            {teacherMatches.length === 0 && !isLoading && <p className="text-gray-400 text-sm italic">No teachers found yet.</p>}
-          </div>
+          <button 
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="bg-forest-light text-forest-dark px-5 py-2.5 rounded-xl font-bold hover:bg-forest-mid/30 transition border border-forest-mid/20"
+          >
+            Sign Out
+          </button>
         </div>
 
-        {/* Peer Talk Section */}
-        <div className="bg-white p-6 rounded-lg shadow border">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">1-on-1 Peer Talk</h2>
-          <button 
-            onClick={fetchPeerMatches}
-            className="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 mb-4"
-          >
-            Find Peers
-          </button>
-          <div className="space-y-3">
-            {peerMatches.map((p: any) => (
-              <div key={p.id} className="p-3 bg-gray-50 rounded border flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-900">{p.name || p.username}</p>
-                  <p className="text-xs text-gray-500">Fluent: {p.fluentLanguages}</p>
+        <div className="grid grid-cols-1 gap-8">
+          {/* Main Queue Section */}
+          <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-forest-dark/5 border border-forest-mid/10 text-center">
+            <div className="w-20 h-20 bg-forest-light rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <div className={`w-10 h-10 border-4 border-forest-dark border-t-transparent rounded-full ${isQueued ? 'animate-spin' : ''}`}></div>
+            </div>
+            
+            <h2 className="text-3xl font-black text-forest-deep mb-3">1-on-1 Peer Talk</h2>
+            <p className="text-forest-dark/70 mb-8 max-w-sm mx-auto font-medium">
+              Jump into a live queue to connect with someone and practice your languages instantly.
+            </p>
+
+            <button 
+              onClick={toggleQueue}
+              disabled={isLoading}
+              className={`w-full max-w-md py-5 rounded-2xl font-black text-lg transition-all transform active:scale-[0.98] shadow-lg ${
+                isQueued 
+                  ? "bg-red-50 text-red-600 border-2 border-red-100 hover:bg-red-100" 
+                  : "bg-forest-dark text-white hover:bg-forest-deep shadow-forest-dark/20"
+              }`}
+            >
+              {isLoading ? "Processing..." : isQueued ? "Leave Queue" : "Join Queue"}
+            </button>
+            
+            {isQueued && (
+              <p className="mt-4 text-forest-mid font-bold animate-pulse">
+                {queueStatus}
+              </p>
+            )}
+            
+            {!isQueued && (
+              <div className="mt-6 flex justify-center gap-4 text-xs font-bold text-forest-dark/40 uppercase tracking-widest">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  Ready to connect
                 </div>
-                <button className="text-sm bg-green-500 text-white px-3 py-1 rounded">Chat</button>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-forest-mid rounded-full"></span>
+                  1-on-1 Text Chat
+                </div>
               </div>
-            ))}
-            {peerMatches.length === 0 && !isLoading && <p className="text-gray-400 text-sm italic">No peers found yet.</p>}
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-50 grayscale pointer-events-none">
+             <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-forest-mid/30">
+                <h3 className="font-bold text-forest-dark mb-1 text-sm uppercase tracking-wider">Coming Soon</h3>
+                <p className="text-forest-dark/40 text-sm font-medium">Find specialized teachers for 1-on-1 coaching.</p>
+             </div>
+             <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-forest-mid/30">
+                <h3 className="font-bold text-forest-dark mb-1 text-sm uppercase tracking-wider">Coming Soon</h3>
+                <p className="text-forest-dark/40 text-sm font-medium">Group study rooms for collaborative learning.</p>
+             </div>
           </div>
         </div>
       </div>

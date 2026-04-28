@@ -43,6 +43,8 @@ model User {
   password          String?
   fluentLanguages   String?           @db.Text
   learningLanguages String?           @db.Text
+  isQueued          Boolean           @default(false)
+  queuedAt          DateTime?
   accounts          Account[]
   chats             ChatParticipant[]
   sessions          Session[]
