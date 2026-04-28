@@ -31,9 +31,12 @@ export default function Dashboard() {
           });
           const data = await res.json();
           if (data.matched) {
+            setIsQueued(false);
+            setQueueStatus("Matched! Redirecting...");
             router.push(`/chat/${data.chatId}`);
+          } else {
+            setIsQueued(data.isQueued);
           }
-          setIsQueued(data.isQueued);
         } catch (e) {
           console.error(e);
         }
@@ -54,6 +57,8 @@ export default function Dashboard() {
       const data = await res.json();
       
       if (data.matched) {
+        setIsQueued(false);
+        setQueueStatus("Matched! Redirecting...");
         router.push(`/chat/${data.chatId}`);
       } else {
         setIsQueued(action === "join");
@@ -137,7 +142,7 @@ export default function Dashboard() {
              </div>
              <div className="bg-white/50 p-6 rounded-3xl border border-dashed border-forest-mid/30">
                 <h3 className="font-bold text-forest-dark mb-1 text-sm uppercase tracking-wider">Coming Soon</h3>
-                <p className="text-forest-dark/40 text-sm font-medium">Group study rooms for collaborative learning.</p>
+                <p className="text-forest-dark/40 text-sm font-medium">Specialized learning modules.</p>
              </div>
           </div>
         </div>
