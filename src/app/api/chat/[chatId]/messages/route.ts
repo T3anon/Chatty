@@ -31,7 +31,12 @@ export async function GET(
     orderBy: { createdAt: "asc" },
   });
 
-  return NextResponse.json(messages);
+  const chat = await prisma.chat.findUnique({
+    where: { id: chatId },
+    select: { status: true }
+  });
+
+  return NextResponse.json({ messages, status: chat?.status || "ACTIVE" });
 }
 
 export async function POST(

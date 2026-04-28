@@ -11,8 +11,10 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
   const { chatId } = use(params);
   const router = useRouter();
   const [messages, setMessages] = useState<any[]>([]);
+  const [chatStatus, setChatStatus] = useState("ACTIVE");
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isEnding, setIsEnding] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -26,7 +28,8 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
       const res = await fetch(`/api/chat/${chatId}/messages`);
       if (res.ok) {
         const data = await res.json();
-        setMessages(data);
+        setMessages(data.messages);
+        setChatStatus(data.status);
         setIsLoading(false); // Success, hide loading
       } else if (res.status === 403 || res.status === 404) {
         // Not authorized or chat doesn't exist
@@ -74,6 +77,24 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
     }
   };
 
+  const handleEndChat = async () => {
+    if (!confirm("Are you sure you want to end this chat session?")) return;
+    
+    setIsEnding(true);
+    try {
+      const res = await fetch(`/api/chat/${chatId}/end`, {
+        method: "POST"
+      });
+      if (res.ok) {
+        router.push("/dashboard");
+      }
+    } catch (e) {
+      console.error("Failed to end chat", e);
+    } finally {
+      setIsEnding(false);
+    }
+  };
+
   if (status === "loading" || isLoading) {
     return <div className="p-10 text-center">Loading chat...</div>;
   }
@@ -83,14 +104,28 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b p-4 flex items-center gap-4">
-        <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-full transition">
-          <ArrowLeft size={20} className="text-gray-600" />
-        </Link>
-        <div>
-          <h1 className="font-bold text-gray-900">1-on-1 Session</h1>
-          <p className="text-xs text-green-500 font-medium">Connected</p>
+      <div className="bg-white border-b p-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-full transition">
+            <ArrowLeft size={20} className="text-gray-600" />
+          </Link>
+          <div>
+            <h1 className="font-bold text-gray-900">1-on-1 Session</h1>
+            <p className={`text-xs font-medium ${chatStatus === "ACTIVE" ? "text-green-500" : "text-red-500"}`}>
+              {chatStatus === "ACTIVE" ? "Connected" : "Session Ended"}
+            </p>
+          </div>
         </div>
+        
+        {chatStatus === "ACTIVE" && (
+          <button 
+            onClick={handleEndChat}
+            disabled={isEnding}
+            className="text-sm font-bold text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl transition border border-red-100"
+          >
+            {isEnding ? "Ending..." : "End Session"}
+          </button>
+        )}
       </div>
 
       {/* Messages area */}
@@ -98,7 +133,20 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
       >
-        {messages.length === 0 && (
+        {chatStatus === "ENDED" && (
+          <div className="bg-red-50 border border-red-100 p-6 rounded-3xl text-center max-w-md mx-auto my-8">
+            <h3 className="text-red-900 font-bold text-lg mb-2">The session has ended</h3>
+            <p className="text-red-700 text-sm mb-6">This conversation is now closed. We hope you had a great practice!</p>
+            <Link 
+              href="/dashboard"
+              className="inline-block bg-red-600 text-white px-8 py-3 rounded-2xl font-black hover:bg-red-700 transition shadow-lg shadow-red-200"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+        )}
+        
+        {messages.length === 0 && chatStatus === "ACTIVE" && (
           <div className="text-center py-10 text-gray-400 italic">
             No messages yet. Say hello!
           </div>
@@ -128,18 +176,20 @@ export default function ChatPage({ params }: { params: Promise<{ chatId: string 
       </div>
 
       {/* Input area */}
-      <div className="p-4 bg-white border-t">
+      <div className={`p-4 bg-white border-t ${chatStatus === "ENDED" ? "opacity-50 pointer-events-none" : ""}`}>
         <form onSubmit={handleSendMessage} className="max-w-4xl mx-auto flex gap-2">
           <input 
             type="text" 
-            placeholder="Type your message..." 
+            placeholder={chatStatus === "ENDED" ? "Chat ended" : "Type your message..."}
+            disabled={chatStatus === "ENDED"}
             className="flex-1 border border-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-900"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
           />
           <button 
             type="submit"
-            className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition shadow-md shadow-purple-200"
+            disabled={chatStatus === "ENDED"}
+            className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition shadow-md shadow-purple-200 disabled:bg-gray-400"
           >
             <Send size={20} />
           </button>
