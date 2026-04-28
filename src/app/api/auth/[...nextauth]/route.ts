@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   secret: process.env.NEXTAUTH_SECRET,
-  debug: false,
+  debug: true,
   session: {
     strategy: "jwt",
   },
@@ -61,6 +61,13 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).username = token.username;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     },
   },
   events: {
